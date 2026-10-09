@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Scheduler Slot Manager</masterLabel>
+    <description>Book, transfer and cancel appointment slots for a resource group.</description>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="resourceGroupName" type="String" label="Resource group" default="Student Success Advising"/>
+            <property name="resourceGroupSummary" type="String" label="Summary line"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

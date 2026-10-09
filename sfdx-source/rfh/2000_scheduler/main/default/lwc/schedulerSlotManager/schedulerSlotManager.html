@@ -1,0 +1,143 @@
+<template>
+    <div class="container">
+        <div class="resource-group">
+            <p class="slds-text-title_caps slds-text-color_weak">Resource group</p>
+            <h1 class="slds-text-heading_large">{resourceGroupName}</h1>
+            <p class="slds-text-color_weak">{resourceGroupSummary}</p>
+        </div>
+
+        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small">
+            <h2 class="slds-text-heading_medium">My appointments</h2>
+            <lightning-button variant="brand" label="Book appointment" onclick={handleBook}></lightning-button>
+        </div>
+
+        <p class="slds-text-color_weak slds-m-bottom_small" role="status">{message}</p>
+
+        <template lwc:if={errorMessage}>
+            <div class="slds-text-color_error slds-m-bottom_small" role="alert">{errorMessage}</div>
+        </template>
+
+        <div class="table-wrap">
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Loading appointments" size="small"></lightning-spinner>
+            </template>
+            <table class="slds-table slds-table_bordered">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th scope="col">Type</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="slds-assistive-text">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template lwc:if={hasAppointments}>
+                        <template for:each={appointments} for:item="appt">
+                            <tr key={appt.id}>
+                                <td>{appt.type}</td>
+                                <td>{appt.date}</td>
+                                <td>{appt.time}</td>
+                                <td class="slds-text-color_weak">Confirmed</td>
+                                <td class="slds-text-align_right">
+                                    <lightning-button
+                                        label="Transfer"
+                                        data-id={appt.id}
+                                        onclick={handleTransfer}
+                                    ></lightning-button>
+                                    <lightning-button
+                                        class="slds-m-left_x-small"
+                                        label="Cancel"
+                                        data-id={appt.id}
+                                        onclick={handleCancel}
+                                    ></lightning-button>
+                                </td>
+                            </tr>
+                        </template>
+                    </template>
+                    <template lwc:else>
+                        <tr>
+                            <td colspan="5" class="slds-text-align_center slds-text-color_weak">
+                                No appointments. Select Book appointment to add one.
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <template lwc:if={isDialogOpen}>
+        <section
+            role="dialog"
+            tabindex="-1"
+            aria-modal="true"
+            aria-labelledby="dialog-title"
+            class="slds-modal slds-fade-in-open"
+            onkeydown={handleKeydown}
+        >
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <h2 id="dialog-title" class="slds-modal__title slds-hyphenate">{dialogTitle}</h2>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <template lwc:if={isCancel}>
+                        <p>Cancel <strong>{currentSummary}</strong>?</p>
+                    </template>
+                    <template lwc:if={showPicker}>
+                        <template lwc:if={isBook}>
+                            <lightning-combobox
+                                label="Type"
+                                value={selectedType}
+                                options={typeOptions}
+                                onchange={handleTypeChange}
+                            ></lightning-combobox>
+                        </template>
+                        <template lwc:if={isTransfer}>
+                            <p class="slds-text-color_weak slds-m-bottom_small">Current: {currentSummary}</p>
+                        </template>
+                        <lightning-combobox
+                            label="Date"
+                            value={selectedDate}
+                            options={dateOptions}
+                            onchange={handleDateChange}
+                        ></lightning-combobox>
+                        <fieldset class="slds-m-top_small">
+                            <legend class="slds-form-element__label">Time</legend>
+                            <div class="slots">
+                                <template for:each={slotItems} for:item="slot">
+                                    <button
+                                        key={slot.key}
+                                        type="button"
+                                        class={slot.className}
+                                        data-time={slot.time}
+                                        aria-pressed={slot.ariaPressed}
+                                        title={slot.title}
+                                        disabled={slot.taken}
+                                        onclick={handleSlotClick}
+                                    >
+                                        {slot.time}
+                                    </button>
+                                </template>
+                            </div>
+                        </fieldset>
+                    </template>
+                    <template lwc:if={errorMessage}>
+                        <p class="slds-text-color_error slds-m-top_small" role="alert">{errorMessage}</p>
+                    </template>
+                </div>
+                <div class="slds-modal__footer">
+                    <lightning-button label={closeLabel} onclick={handleClose}></lightning-button>
+                    <lightning-button
+                        class="slds-m-left_x-small"
+                        variant={confirmVariant}
+                        label={confirmLabel}
+                        disabled={confirmDisabled}
+                        onclick={handleConfirm}
+                    ></lightning-button>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+</template>
